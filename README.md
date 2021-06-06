@@ -5,7 +5,7 @@ This single header library contains the alternative ```stdex::variant```,<br>
 which has the same interface as ```std::variant``` and usually works as a drop-in replacement,<br>
 but has a cleaner interface and more goodies.<br>
 
-<h3> Features </h3>
+<h2> Features </h2>
 
 :heavy_check_mark: Single header file, C++ 17<br>
 :heavy_check_mark: STL interface support (```std::get```, ```std::get_if```, ```std::visit``` etc..)<br>
@@ -16,6 +16,13 @@ but has a cleaner interface and more goodies.<br>
 :heavy_check_mark: Small template code generation<br>
 :heavy_check_mark: Fast compile times<br>
 :heavy_check_mark: Bonus functions and methods (see examples below)<br>
+
+<h2> Usage </h2>
+
+Just copy the ```extended_variant.hpp``` file into your source code, that's it.<br>
+Please remember to include the ```LICENSE``` file according to the license agreement.<br>
+
+<h2> Examples </h2>
 
 <h3> Checking element type </h3>
 
