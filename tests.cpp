@@ -1,7 +1,7 @@
 /*
 	MIT License
 
-	Copyright (c) 2021 Mario Sieg <pinsrq> mt3000@gmx.de
+	Copyright 2021 Mario Sieg "pinsrq" <mt3000@gmx.de>
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -63,13 +63,13 @@ namespace stdex
 
 		// discriminator
 		static_assert(std::is_same_v<variant<std::int8_t, float, std::string>::discriminator_v, std::uint8_t>);
-		static_assert(std::is_same_v<variant<bool>::detail::discriminator<std::numeric_limits<std::uint8_t>::max()>::type, std::uint8_t>);
-		static_assert(std::is_same_v<variant<bool>::detail::discriminator<std::numeric_limits<std::uint8_t>::max() + 1>::type, std::uint16_t>);
-		static_assert(std::is_same_v<variant<bool>::detail::discriminator<std::numeric_limits<std::uint16_t>::max()>::type, std::uint16_t>);
-		static_assert(std::is_same_v<variant<bool>::detail::discriminator<std::numeric_limits<std::uint16_t>::max() + 1>::type, std::uint32_t>);
-		static_assert(std::is_same_v<variant<bool>::detail::discriminator<std::numeric_limits<std::uint32_t>::max()>::type, std::uint32_t>);
-		static_assert(std::is_same_v<variant<bool>::detail::discriminator<static_cast<std::size_t>(std::numeric_limits<std::uint32_t>::max()) + 1>::type, std::size_t>);
-		static_assert(std::is_same_v<variant<bool>::detail::discriminator<std::numeric_limits<std::size_t>::max()>::type, std::size_t>);
+		static_assert(std::is_same_v<detail::discriminator<std::numeric_limits<std::uint8_t>::max()>::type, std::uint8_t>);
+		static_assert(std::is_same_v<detail::discriminator<std::numeric_limits<std::uint8_t>::max() + 1>::type, std::uint16_t>);
+		static_assert(std::is_same_v<detail::discriminator<std::numeric_limits<std::uint16_t>::max()>::type, std::uint16_t>);
+		static_assert(std::is_same_v<detail::discriminator<std::numeric_limits<std::uint16_t>::max() + 1>::type, std::uint32_t>);
+		static_assert(std::is_same_v<detail::discriminator<std::numeric_limits<std::uint32_t>::max()>::type, std::uint32_t>);
+		static_assert(std::is_same_v<detail::discriminator<static_cast<std::size_t>(std::numeric_limits<std::uint32_t>::max()) + 1>::type, std::size_t>);
+		static_assert(std::is_same_v<detail::discriminator<std::numeric_limits<std::size_t>::max()>::type, std::size_t>);
 	};
 }
 
@@ -77,19 +77,93 @@ using stdex::variant;
 
 auto main() -> int
 {
-
 	/* constructing: */
 	{
-		constexpr variant<int, float> x{};
-		assert(x.index() == decltype(x)::index_of<int>());
-		assert(x.index() == 0);
+		const variant<int, float> a { };
+		assert(a.index() == decltype(a)::index_of<int>());
+		assert(a.index() == 0);
 
-		constexpr variant<short, int, float> y{};
-		assert(y.index() == decltype(y)::index_of<short>());
-		assert(y.index() == 0);
+		const variant<short, int, float> b { };
+		assert(b.index() == decltype(b)::index_of<short>());
+		assert(b.index() == 0);
+
+		static std::int8_t val {1};
+
+		struct dummy
+		{
+			std::int8_t field;
+
+			dummy()
+			{
+				++val;
+				field = 20;
+			}
+
+			~dummy()
+			{
+				val = 123;
+			}
+		};
+		static_assert(sizeof(dummy) == 1);
+
+		struct dummy2
+		{
+			alignas(variant<dummy, char16_t>::detail::max_align) std::array<std::byte, variant<dummy, char16_t>::detail::max_size> a;
+			std::uint8_t                                                                                                           b;
+		};
+
+		std::cout << sizeof(dummy2) << '\n';
+		std::cout << alignof(dummy2) << '\n';
+
+		static_assert(sizeof(variant<dummy, char16_t>::detail::std_tuple) == 4);
+		static_assert(std::is_same_v<variant<dummy, char16_t>::discriminator_v, std::uint8_t>);
+		static_assert(variant<dummy, char16_t>::detail::max_align == 2);
+		static_assert(variant<dummy, char16_t>::detail::max_size == 2);
+		static_assert(sizeof(variant<dummy, char16_t>) == 4);
+
+		std::cout << sizeof(variant<dummy, char16_t>) << '\n';
+		std::cout << alignof(variant<dummy, char16_t>) << '\n';
+
+		{
+			const variant<dummy, char16_t> c { };
+			assert(c.index() == 0);
+			assert(val == 2);
+		}
+		assert(val == 123);
+
+		const variant<int, float, long> d { };
+		assert(d.index() == 0);
+		assert(d.contains<int>());
+		assert(d.contains<int>(0));
+		assert(d.get<int>().has_value());
+		assert(d.get<int>().value() == 0);
+		assert(!d.get<float>().has_value());
+		assert(!d.get<long>().has_value());
+		assert(d.get_or_default<int>() == 0);
+		assert(d.get_or_default<float>() == 0.F);
+		assert(d.get_or_default<long>() == 0);
+		assert(d.get_or<int>(2) == 0);
+		assert(d.get_or<float>(3.1F) == 3.1F);
+		assert(d.get_or<long>(-100) == -100);
+		assert(d.get_or_invoke<int>([]
+			{
+			++val;
+			return 2;
+			}) == 0);
+		assert(d.get_or_invoke<float>([]
+			{
+			++val;
+			return 2.5F;
+			}) == 2.5F);
+		assert(d.get_or_invoke<long>([]
+			{
+			++val;
+			return -10;
+			}) == -10);
+		assert(val == 125);
 	}
 
 	std::cout << "All OK!\n";
-	
+
 	return 0;
 }

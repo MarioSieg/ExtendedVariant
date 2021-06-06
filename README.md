@@ -71,17 +71,20 @@ std::optional<int> value = variant.get<int>();
 
 With ```stdex::variant``` using a default value on type mismatch:
 ```cpp
-int value = variant.get_or_default<int>(); // Returns the default value of int (0) when the types do not match
+// Returns the default value of int (0) when the types do not match:
+int value = variant.get_or_default<int>();
 ```
 
 With ```stdex::variant``` using a custom value on type mismatch:
 ```cpp
-int value = *variant.get_or<int>(10); // Returns 10 when the types do not match
+ // Returns 10 when the types do not match:
+int value = variant.get_or<int>(10);
 ```
 
 With ```stdex::variant``` using a lambda:
 ```cpp
-int value = variant.get_or_invoke<int>([]() -> int { return 10 + 10; }); // Invokes the lambda and returns 20 when the types do not match
+// Invokes the lambda and returns 20 when the types do not match:
+int value = variant.get_or_invoke<int>([]() -> int { return 10 + 10; });
 ```
 
 <h3> Converting to std::tuple </h3>
@@ -119,7 +122,7 @@ std::visit
 );
 ```
  
-With ```stdex::variant``` using ```std::optional```:<br>
+With ```stdex::variant``` using ```visit```:<br>
 ```cpp
 stdex::variant<int, float> variant{};
 variant.visit
