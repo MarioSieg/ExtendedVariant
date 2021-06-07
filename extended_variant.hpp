@@ -206,7 +206,7 @@ namespace stdex
 		/* Check if variant currently holds T. */
 		template <typename T, typename = std::enable_if_t<stdex::detail::monotonic_validator_v<T>>>
 		[[nodiscard]]
-		constexpr auto contains() const noexcept(true) -> bool
+		constexpr auto holds_alternative() const noexcept(true) -> bool
 		{
 			return this->discriminator_ == index_of<T>();
 		}
@@ -214,7 +214,7 @@ namespace stdex
 		/* Check if variant currently holds T and if the values match. */
 		template <typename T, typename = std::enable_if_t<stdex::detail::monotonic_validator_v<T>>>
 		[[nodiscard]]
-		inline auto contains(T&& other) const noexcept(true) -> bool
+		inline auto holds_value(T&& other) const noexcept(true) -> bool
 		{
 			return this->discriminator_ == index_of<T>() && this->access_as<T>() == other;
 		}
@@ -224,7 +224,7 @@ namespace stdex
 		[[nodiscard]]
 		inline auto get() const noexcept(true) -> std::optional<T>
 		{
-			return this->contains<T>() ? std::optional<T> {this->access_as<T>()} : std::optional<T> {std::nullopt};
+			return this->holds_alternative<T>() ? std::optional<T> {this->access_as<T>()} : std::optional<T> {std::nullopt};
 		}
 
 		/*
@@ -235,7 +235,7 @@ namespace stdex
 		[[nodiscard]]
 		inline auto get_or_default() const noexcept(true) -> T
 		{
-			return this->contains<T>() ? this->access_as<T>() : T { };
+			return this->holds_alternative<T>() ? this->access_as<T>() : T { };
 		}
 
 		/*
@@ -243,9 +243,9 @@ namespace stdex
 		 */
 		template <typename T, typename = std::enable_if_t<stdex::detail::monotonic_validator_v<T>>>
 		[[nodiscard]]
-		inline auto get_or(T&& instead) const noexcept(true) -> T
+		inline auto get_or_custom_value(T&& instead) const noexcept(true) -> T
 		{
-			return this->contains<T>() ? this->access_as<T>() : instead;
+			return this->holds_alternative<T>() ? this->access_as<T>() : instead;
 		}
 
 
@@ -257,7 +257,7 @@ namespace stdex
 		inline auto get_or_invoke(F&& functor, Args&&...args) const noexcept(true) -> T
 		{
 			static_assert(std::is_convertible_v<decltype(std::invoke(functor, std::forward<Args>()...)), T>, "Functor must return a T convertible type!");
-			return this->contains<T>() ? this->access_as<T>() : std::invoke(functor, std::forward<Args>()...);
+			return this->holds_alternative<T>() ? this->access_as<T>() : std::invoke(functor, std::forward<Args>()...);
 		}
 	};
 

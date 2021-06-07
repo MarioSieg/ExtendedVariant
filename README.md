@@ -34,7 +34,7 @@ if(std::holds_alternative<int>(variant))
  
 With ```stdex::variant```:
 ```cpp
-if(variant.contains<int>)
+if(variant.holds_alternative<int>)
  ...
 ```
 
@@ -48,12 +48,12 @@ if(std::holds_alternative<int>(variant) && std::get<int>(variant) == 3)
  
 With ```stdex::variant```:
 ```cpp
-if(variant.contains<int>(3))
+if(variant.holds_value<int>(3))
  ...
 ```
 Since the type can be elided from the literal, we can even write:
 ```cpp
-if(variant.contains(3))
+if(variant.holds_value(3))
  ...
 ```
 
@@ -78,7 +78,7 @@ int value = variant.get_or_default<int>();
 With ```stdex::variant``` using a custom value on type mismatch:
 ```cpp
  // Returns 10 when the types do not match:
-int value = variant.get_or<int>(10);
+int value = variant.get_or_custom_value<int>(10);
 ```
 
 With ```stdex::variant``` using a lambda:

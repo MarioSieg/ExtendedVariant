@@ -133,8 +133,8 @@ auto main() -> int
 
 		const variant<int, float, long> d { };
 		assert(d.index() == 0);
-		assert(d.contains<int>());
-		assert(d.contains<int>(0));
+		assert(d.holds_alternative<int>());
+		assert(d.holds_value<int>(0));
 		assert(d.get<int>().has_value());
 		assert(d.get<int>().value() == 0);
 		assert(!d.get<float>().has_value());
@@ -142,9 +142,9 @@ auto main() -> int
 		assert(d.get_or_default<int>() == 0);
 		assert(d.get_or_default<float>() == 0.F);
 		assert(d.get_or_default<long>() == 0);
-		assert(d.get_or<int>(2) == 0);
-		assert(d.get_or<float>(3.1F) == 3.1F);
-		assert(d.get_or<long>(-100) == -100);
+		assert(d.get_or_custom_value<int>(2) == 0);
+		assert(d.get_or_custom_value<float>(3.1F) == 3.1F);
+		assert(d.get_or_custom_value<long>(-100) == -100);
 		assert(d.get_or_invoke<int>([]
 			{
 			++val;
